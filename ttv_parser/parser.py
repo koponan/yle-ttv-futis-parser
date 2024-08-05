@@ -1,3 +1,4 @@
+import time
 from typing import List
 
 from ttv_parser.models import Event, Goal, Match, RedCard, Report
@@ -22,9 +23,9 @@ def parse_body(body: str):
             # to remove need to keep trailing new lines around
             curr_match.events.sort(key=lambda e: e.time)
             matches.append(curr_match)
-            curr_match = Match(None, None, [], [], [])
+            curr_match = Match(None, None, None, [], [], [])
         elif isblank(row):
-            curr_match = Match(None, None, [], [], [])
+            curr_match = Match(None, None, None, [], [], [])
         elif curr_match.host is None:
             curr_match = parse_match_head(row.strip())
         else:
@@ -40,6 +41,7 @@ def parse_match_head(head: str):
     head = head.strip()
     home_team = []
     visitor_team = []
+    kickoff = None
     scoreline = []
     item_to_build = home_team
     collected_character_index = None
@@ -52,8 +54,11 @@ def parse_match_head(head: str):
             pass
         # Since clubs may have numbers in name e.g. 'Mainz 05'
         # look for '-' after number to identify scoreline
-        elif at_number_followed_by_dash(head, i):
+        elif at_number_followed_by_char(head, i, '-'):
             scoreline = parse_score(head[i:])
+            break
+        elif at_number_followed_by_char(head, i, '.'):
+            kickoff = parse_time(head[i:])
             break
         elif collected_character_index == i - 2 and (item_to_build is home_team or item_to_build is visitor_team):
             item_to_build.append(" ")
@@ -63,11 +68,19 @@ def parse_match_head(head: str):
             item_to_build.append(c)
             collected_character_index = i
 
+    ht_score = ft_score = None
+    if len(scoreline) == 4:
+        ht_score = scoreline[2:4]
+        ft_score = scoreline[:2]
+    elif len(scoreline) == 2:
+        ht_score = scoreline[::]
+
     return Match(
         list_to_str(home_team),
         list_to_str(visitor_team),
-        scoreline[2:4],
-        scoreline[:2],
+        kickoff,
+        ht_score,
+        ft_score,
         []
     )
 
@@ -139,13 +152,16 @@ def parse_match_event_row_reverse(row: str):
     events[-1].team = last_team
     return events
 
-def at_number_followed_by_dash(head: str, i: int):
+def at_number_followed_by_char(head: str, i: int, char: str):
     num = ""
     while i < len(head) and head[i].isdigit():
         num += head[i]
         i += 1
 
-    return not isblank(num) and head[i] == '-'
+    return not isblank(num) and i < len(head) and head[i] == char
+
+def parse_time(timeline: str):
+    return time.strptime(timeline, "%H.%M")
 
 def parse_score(scoreline: str):
     ret = []

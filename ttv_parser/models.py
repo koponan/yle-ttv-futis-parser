@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import List
+import time
+from typing import List, Optional
 
 @dataclass
 class Event:
@@ -19,6 +20,7 @@ class RedCard(Event):
 class Match:
     host: str
     visitor: str
+    kickoff: time.struct_time
     ht_score: List[int]
     ft_score: List[int]
     events: List[Event]
@@ -31,7 +33,9 @@ class Match:
         ret += "}"
         return ret
 
-    def score_str(self, score: List[int]):
+    def score_str(self, score: Optional[List[int]]):
+        if score is None:
+            return ""
         return '-'.join(map(lambda n: str(n), score))
 
 @dataclass

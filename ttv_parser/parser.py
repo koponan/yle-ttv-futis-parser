@@ -1,7 +1,7 @@
 import time
 from typing import List
 
-from ttv_parser.models import Event, Goal, Match, RedCard, Report
+from ttv_parser.models import Event, Goal, Match, RedCard, Report, EventTime
 
 def parse_report(report: str) -> Report:
     report = report.lstrip() # Only left strip to save trailing newlines to signal end of last match
@@ -58,7 +58,7 @@ def parse_match_head(head: str):
             scoreline = parse_score(head[i:])
             break
         elif at_number_followed_by_char(head, i, '.'):
-            kickoff = parse_time(head[i:])
+            kickoff = parse_match_time(head[i:])
             break
         elif collected_character_index == i - 2 and (item_to_build is home_team or item_to_build is visitor_team):
             item_to_build.append(" ")
@@ -100,7 +100,7 @@ def parse_match_event_row_reverse(row: str):
     for c in reversed(row):
         if c.isspace() and on_right_margin:
             continue
-        elif c.isdigit():
+        elif c.isdigit() or c == "+":
             on_right_margin = False
             if building_player:
                 building_player = False
@@ -116,7 +116,7 @@ def parse_match_event_row_reverse(row: str):
             building_time = False
             building_time_prefix = True
             if event is None:
-                event = Goal(int(time), "", "", "")
+                event = Goal(parse_event_time(time), "", "", "")
                 time = ""
             event.type = c + event.type
         elif c.isspace() and (building_time or building_time_prefix):
@@ -124,13 +124,13 @@ def parse_match_event_row_reverse(row: str):
             building_time_prefix = False
         elif c == "#":
             building_time = False
-            event = RedCard(int(time), "", "")
+            event = RedCard(parse_event_time(time), "", "")
             time = ""
         elif not c.isspace():
             building_time = False
             building_player = True
             if event is None:
-                event = Goal(int(time), "", "", "m")
+                event = Goal(parse_event_time(time), "", "", "m")
                 time = ""
             if space_within_player:
                 player = " " + player
@@ -160,8 +160,14 @@ def at_number_followed_by_char(head: str, i: int, char: str):
 
     return not isblank(num) and i < len(head) and head[i] == char
 
-def parse_time(timeline: str):
+def parse_match_time(timeline: str):
     return time.strptime(timeline, "%H.%M")
+
+def parse_event_time(time: str):
+    parts = time.split("+")
+    regular_time = int(parts[0])
+    added_time = int(parts[1]) if len(parts) == 2 else None
+    return EventTime(regular_time, added_time)
 
 def parse_score(scoreline: str):
     ret = []

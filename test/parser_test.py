@@ -3,7 +3,7 @@ import unittest
 from dataclasses import dataclass
 
 from ttv_parser import parser
-from ttv_parser.models import Match, Goal, Report, RedCard
+from ttv_parser.models import Match, Goal, Report, RedCard, EventTime
 
 def load_text(fname: str):
     with open(f"test/data/{fname}", "r") as f:
@@ -28,6 +28,7 @@ class ParserTest(unittest.TestCase):
                 Match(
                     "Null City",
                     "Bazpool",
+                    None,
                     [0, 0],
                     [0, 0],
                     []
@@ -44,6 +45,7 @@ class ParserTest(unittest.TestCase):
                 Match(
                     "Barham",
                     "Foo Utd",
+                    None,
                     [0, 0],
                     [0, 1],
                     [
@@ -62,6 +64,7 @@ class ParserTest(unittest.TestCase):
                 Match(
                     "Null City",
                     "Foo Utd",
+                    None,
                     [0, 2],
                     [1, 2],
                     [
@@ -82,6 +85,7 @@ class ParserTest(unittest.TestCase):
                 Match(
                     "Barham",
                     "Foo Utd",
+                    None,
                     [0, 0],
                     [0, 1],
                     [
@@ -91,6 +95,7 @@ class ParserTest(unittest.TestCase):
                 Match(
                     "Bazpool",
                     "Null City",
+                    None,
                     [0, 1],
                     [1, 1],
                     [
@@ -110,6 +115,7 @@ class ParserTest(unittest.TestCase):
                 Match(
                     "Foo Utd",
                     "Barham",
+                    None,
                     [1, 1],
                     [3, 2],
                     [
@@ -132,6 +138,7 @@ class ParserTest(unittest.TestCase):
                 Match(
                     "Foo Utd",
                     "Bazpool",
+                    None,
                     [1, 0],
                     [2, 1],
                     [
@@ -152,6 +159,7 @@ class ParserTest(unittest.TestCase):
                 Match(
                     "Bazpool",
                     "Foo Utd",
+                    None,
                     [1, 0],
                     [1, 1],
                     [
@@ -172,11 +180,55 @@ class ParserTest(unittest.TestCase):
                 Match(
                     "Unlikely",
                     "Many Goals",
+                    None,
                     [10, 5],
                     [12, 9],
                     []
                 )
             ]
+        )
+
+        self.ongoing_match = TestReport(None, None)
+        self.ongoing_match.raw = load_text("ongoing_match.txt")
+        self.ongoing_match.expected = Report(
+            1,
+            "",
+            [
+                Match(
+                    "Bazpool",
+                    "Foo Utd",
+                    None,
+                    [1, 0],
+                    None,
+                    [
+                        Goal(30, "Nanez", "Host", "m")
+                    ]
+                )
+            ]
+        )
+
+        self.upcoming_matches = TestReport(None, None)
+        self.upcoming_matches.raw = load_text("upcoming_matches.txt")
+
+        self.added_time = TestReport(
+            load_text("added_time.txt"),
+            Report(
+                1,
+                "",
+                [
+                    Match(
+                        "Bazpool",
+                        "Barham",
+                        None,
+                        [1, 0],
+                        [2, 0],
+                        [
+                            Goal(40, "Nanez", "Host", "m"),
+                            Goal(EventTime(90, 2), "Mac Tester", "Host", "m")
+                        ]
+                    )
+                ]
+            )
         )
 
     def test_1_goalless_draw(self):
@@ -210,6 +262,26 @@ class ParserTest(unittest.TestCase):
     def test_8_multi_digit_goals(self):
         res = parser.parse_report(self.multi_digit_goals.raw)
         self.assertMatchesEqual(res, self.multi_digit_goals.expected)
+
+    def test_9_ongoing_match(self):
+        res = parser.parse_report(self.ongoing_match.raw)
+        self.assertMatchesEqual(res, self.ongoing_match.expected)
+
+    def test_10_upcoming_matches(self):
+        res = parser.parse_report(self.upcoming_matches.raw)
+        first, second = res.body
+        self.assertListEqual(
+            [first.kickoff.tm_hour, first.kickoff.tm_min],
+            [16, 0]
+        )
+        self.assertListEqual(
+            [second.kickoff.tm_hour, second.kickoff.tm_min],
+            [18, 30]
+        )
+
+    def test_11_added_time(self):
+        res = parser.parse_report(self.added_time.raw)
+        self.assertMatchesEqual(res, self.added_time.expected)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

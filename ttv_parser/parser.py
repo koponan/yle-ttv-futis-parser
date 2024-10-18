@@ -1,17 +1,49 @@
+from datetime import datetime
 import time
 from typing import List
 
-from ttv_parser.models import Event, Goal, Match, RedCard, Report, EventTime
+from ttv_parser.models import Event, Goal, Match, RedCard, Report, EventTime, ReportHead
 
-def parse_report(report: str) -> Report:
+def parse_report(report: str, year: int = datetime.today().year) -> Report:
     report = report.lstrip() # Only left strip to save trailing newlines to signal end of last match
     head, body_raw = report.split("\n", maxsplit=1)
     res = Report(
-        get_subpage_count(report),
-        head,
+        parse_report_head(head, year),
         parse_body(body_raw)
     )
     return res
+
+def parse_report_head(head: str, year: int):
+    competition = ""
+    i = 0
+    while not at_number_followed_by_char(head, i, '.') and i < len(head):
+        if not head[i].isspace():
+            competition += head[i]
+        elif competition and not competition[-1].isspace():
+            competition += head[i]
+        i += 1
+
+    competition = competition.rstrip()
+
+    datestr = ""
+    while not isblank(head[i]) and i < len(head):
+        datestr += head[i]
+        i += 1
+
+    date_without_year = datetime.strptime(datestr, "%d.%m.")
+    date = date_without_year.replace(year = year).date()
+
+    while not at_number_followed_by_char(head, i, '/') and i < len(head):
+        i += 1
+
+    subpage_counter_str = ""
+    while not isblank(head[i]) and i < len(head):
+        subpage_counter_str += head[i]
+        i += 1
+
+    subpages = parse_score(subpage_counter_str)
+
+    return ReportHead(competition, date, subpages)
 
 def parse_body(body: str):
     matches = []

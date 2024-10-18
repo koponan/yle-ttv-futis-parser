@@ -1,9 +1,11 @@
 import unittest
 
+from datetime import date
 from dataclasses import dataclass
+from typing import List
 
 from ttv_parser import parser
-from ttv_parser.models import Match, Goal, Report, RedCard, EventTime
+from ttv_parser.models import Match, Goal, Report, RedCard, EventTime, ReportHead
 
 def load_text(fname: str):
     with open(f"test/data/{fname}", "r") as f:
@@ -14,16 +16,26 @@ class TestReport:
     raw: str
     expected: Report
 
+COMPETITION = "ENGLANNIN VAR-LIIGA"
+DATE = date.today().replace(month=1, day=22)
+SUBPAGES = [1, 1]
+
 class ParserTest(unittest.TestCase):
+    def assertReportsEqual(self, actual: Report, expected: Report):
+        self.assertEqual(actual.head, expected.head)
+        self.assertMatchesEqual(actual, expected)
+
     def assertMatchesEqual(self, actual: Report, expected: Report):
-        return self.assertListEqual(actual.body, expected.body)
+        self.assertListEqual(actual.body, expected.body)
+
+    def getReportHead(self, comp: str = COMPETITION, date: date = DATE, subpages: List[int] = SUBPAGES):
+        return ReportHead(comp, date, subpages)
 
     def setUp(self) -> None:
         self.goalless_draw = TestReport(None, None)
         self.goalless_draw.raw = load_text("goalless_draw.txt")
         self.goalless_draw.expected = Report(
-            1,
-            "",
+            self.getReportHead(),
             [
                 Match(
                     "Null City",
@@ -39,8 +51,7 @@ class ParserTest(unittest.TestCase):
         self.goal_to_nil = TestReport(None, None)
         self.goal_to_nil.raw = load_text("goal_to_nil.txt")
         self.goal_to_nil.expected = Report(
-            1,
-            "",
+            self.getReportHead(),
             [
                 Match(
                     "Barham",
@@ -58,8 +69,7 @@ class ParserTest(unittest.TestCase):
         self.goals_to_goals = TestReport(None, None)
         self.goals_to_goals.raw = load_text("goals_to_goals.txt")
         self.goals_to_goals.expected = Report(
-            1,
-            "",
+            self.getReportHead(),
             [
                 Match(
                     "Null City",
@@ -79,8 +89,7 @@ class ParserTest(unittest.TestCase):
         self.many_matches = TestReport(None, None)
         self.many_matches.raw = load_text("many_matches.txt")
         self.many_matches.expected = Report(
-            1,
-            "",
+            self.getReportHead(),
             [
                 Match(
                     "Barham",
@@ -109,8 +118,7 @@ class ParserTest(unittest.TestCase):
         self.own_goal = TestReport(None, None)
         self.own_goal.raw = load_text("own_goal.txt")
         self.own_goal.expected = Report(
-            1,
-            "",
+            self.getReportHead(),
             [
                 Match(
                     "Foo Utd",
@@ -132,8 +140,7 @@ class ParserTest(unittest.TestCase):
         self.penalty = TestReport(None, None)
         self.penalty.raw = load_text("penalty.txt")
         self.penalty.expected = Report(
-            1,
-            "",
+            self.getReportHead(),
             [
                 Match(
                     "Foo Utd",
@@ -153,8 +160,7 @@ class ParserTest(unittest.TestCase):
         self.red_card = TestReport(None, None)
         self.red_card.raw = load_text("red_card.txt")
         self.red_card.expected = Report(
-            1,
-            "",
+            self.getReportHead(),
             [
                 Match(
                     "Bazpool",
@@ -174,8 +180,7 @@ class ParserTest(unittest.TestCase):
         self.multi_digit_goals = TestReport(None, None)
         self.multi_digit_goals.raw = load_text("multi_digit_goals.txt")
         self.multi_digit_goals.expected = Report(
-            1,
-            "",
+            self.getReportHead(),
             [
                 Match(
                     "Unlikely",
@@ -191,8 +196,7 @@ class ParserTest(unittest.TestCase):
         self.ongoing_match = TestReport(None, None)
         self.ongoing_match.raw = load_text("ongoing_match.txt")
         self.ongoing_match.expected = Report(
-            1,
-            "",
+            self.getReportHead(),
             [
                 Match(
                     "Bazpool",
@@ -213,8 +217,7 @@ class ParserTest(unittest.TestCase):
         self.added_time = TestReport(
             load_text("added_time.txt"),
             Report(
-                1,
-                "",
+                self.getReportHead(),
                 [
                     Match(
                         "Bazpool",
@@ -233,39 +236,39 @@ class ParserTest(unittest.TestCase):
 
     def test_1_goalless_draw(self):
         res = parser.parse_report(self.goalless_draw.raw)
-        self.assertMatchesEqual(res, self.goalless_draw.expected)
+        self.assertReportsEqual(res, self.goalless_draw.expected)
 
     def test_2_goal_to_nil(self):
         res = parser.parse_report(self.goal_to_nil.raw)
-        self.assertMatchesEqual(res, self.goal_to_nil.expected)
+        self.assertReportsEqual(res, self.goal_to_nil.expected)
 
     def test_3_goals_to_goals(self):
         res = parser.parse_report(self.goals_to_goals.raw)
-        self.assertMatchesEqual(res, self.goals_to_goals.expected)
+        self.assertReportsEqual(res, self.goals_to_goals.expected)
 
     def test_4_many_matches(self):
         res = parser.parse_report(self.many_matches.raw)
-        self.assertMatchesEqual(res, self.many_matches.expected)
+        self.assertReportsEqual(res, self.many_matches.expected)
 
     def test_5_own_goal(self):
         res = parser.parse_report(self.own_goal.raw)
-        self.assertMatchesEqual(res, self.own_goal.expected)
+        self.assertReportsEqual(res, self.own_goal.expected)
 
     def test_6_penalty(self):
         res = parser.parse_report(self.penalty.raw)
-        self.assertMatchesEqual(res, self.penalty.expected)
+        self.assertReportsEqual(res, self.penalty.expected)
 
     def test_7_red_card(self):
         res = parser.parse_report(self.red_card.raw)
-        self.assertMatchesEqual(res, self.red_card.expected)
+        self.assertReportsEqual(res, self.red_card.expected)
 
     def test_8_multi_digit_goals(self):
         res = parser.parse_report(self.multi_digit_goals.raw)
-        self.assertMatchesEqual(res, self.multi_digit_goals.expected)
+        self.assertReportsEqual(res, self.multi_digit_goals.expected)
 
     def test_9_ongoing_match(self):
         res = parser.parse_report(self.ongoing_match.raw)
-        self.assertMatchesEqual(res, self.ongoing_match.expected)
+        self.assertReportsEqual(res, self.ongoing_match.expected)
 
     def test_10_upcoming_matches(self):
         res = parser.parse_report(self.upcoming_matches.raw)
@@ -281,7 +284,22 @@ class ParserTest(unittest.TestCase):
 
     def test_11_added_time(self):
         res = parser.parse_report(self.added_time.raw)
-        self.assertMatchesEqual(res, self.added_time.expected)
+        self.assertReportsEqual(res, self.added_time.expected)
+
+    def test_12_report_head(self):
+        head_with_arbitrary_spacing = "   ITALIAN   SERIE  Ä     01.05.    1/2 "
+        rep = self.goalless_draw.raw
+        rep_parts = rep.split("\n", maxsplit=1)
+        rep = "\n".join([head_with_arbitrary_spacing, rep_parts[1]])
+        res = parser.parse_report(rep)
+        self.assertEqual(
+            res.head,
+            ReportHead(
+                "ITALIAN SERIE Ä",
+                date.today().replace(month=5, day=1),
+                [1, 2]
+            )
+        )
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

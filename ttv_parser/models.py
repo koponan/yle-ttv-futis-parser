@@ -1,5 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
+from datetime import date
 from functools import total_ordering
 import time
 from typing import List, Optional
@@ -77,15 +78,19 @@ class Match:
 
 @dataclass
 class Report:
-    subpage_count: int
-    head: str
+    head: ReportHead
     body: List[Match]
 
     def __str__(self) -> str:
-        ret = f"Subpages: {self.subpage_count}\n"
-        ret += self.head + "\n"
+        ret = str(self.head) + "\n"
         ret += "----------------\n"
         for match in self.body:
             ret += str(match) + "\n"
 
         return ret.rstrip("\n")
+
+@dataclass
+class ReportHead:
+    competition: str
+    date: date
+    subpages: List[int]

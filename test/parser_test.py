@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import List
 
 from ttv_parser import parser
-from ttv_parser.models import Match, Goal, Report, RedCard, EventTime, ReportHead
+from ttv_parser.models import Match, Goal, Report, RedCard, EventTime, ReportHead, MissedPenalty
 
 def load_text(fname: str):
     with open(f"test/data/{fname}", "r") as f:
@@ -234,6 +234,26 @@ class ParserTest(unittest.TestCase):
             )
         )
 
+        self.missed_penalty = TestReport(
+            load_text("missed_penalty.txt"),
+            Report(
+                self.getReportHead(),
+                [
+                    Match(
+                        "Barham",
+                        "Null City",
+                        None,
+                        [0, 0],
+                        [0, 1],
+                        [
+                            MissedPenalty(40, "Halland", "Visitor"),
+                            Goal(80, "Halland", "Visitor", "m")
+                        ]
+                    )
+                ]
+            )
+        )
+
     def test_1_goalless_draw(self):
         res = parser.parse_report(self.goalless_draw.raw)
         self.assertReportsEqual(res, self.goalless_draw.expected)
@@ -300,6 +320,10 @@ class ParserTest(unittest.TestCase):
                 [1, 2]
             )
         )
+
+    def test_13_missed_penalty(self):
+        res = parser.parse_report(self.missed_penalty.raw)
+        self.assertReportsEqual(res, self.missed_penalty.expected)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

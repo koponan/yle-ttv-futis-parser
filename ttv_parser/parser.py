@@ -2,7 +2,7 @@ from datetime import datetime
 import time
 from typing import List
 
-from ttv_parser.models import Event, Goal, Match, RedCard, Report, EventTime, ReportHead
+from ttv_parser.models import Event, Goal, Match, RedCard, Report, EventTime, ReportHead, MissedPenalty
 
 def parse_report(report: str, year: int = datetime.today().year) -> Report:
     report = report.lstrip() # Only left strip to save trailing newlines to signal end of last match
@@ -144,13 +144,15 @@ def parse_match_event_row_reverse(row: str):
 
             building_time = True
             time = c + time
-        elif c in "omrp" and (building_time or building_time_prefix):
+        elif c in "omerp" and (building_time or building_time_prefix):
             building_time = False
             building_time_prefix = True
             if event is None:
                 event = Goal(parse_event_time(time), "", "", "")
                 time = ""
             event.type = c + event.type
+            if event.type == "erp":
+                event = MissedPenalty(event.time, "", "")
         elif c.isspace() and (building_time or building_time_prefix):
             building_time = False
             building_time_prefix = False

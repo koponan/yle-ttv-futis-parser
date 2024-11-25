@@ -55,6 +55,11 @@ class RedCard(Event):
         super().__init__(time, player, team)
 
 @dataclass
+class MissedPenalty(Event):
+    def __init__(self, time: int | EventTime, player: str, team: str):
+        super().__init__(time, player, team)
+
+@dataclass
 class Match:
     host: str
     visitor: str

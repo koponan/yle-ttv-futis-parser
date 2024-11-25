@@ -80,7 +80,7 @@ def parse_match_head(head: str):
 
     for i, c in enumerate(head):
         # check which item underway since scoreline also has '-'
-        if c == "-" and item_to_build is home_team:
+        if at_space_padded_dash(head, i) and item_to_build is home_team:
             item_to_build = visitor_team
         elif c.isspace():
             pass
@@ -193,6 +193,10 @@ def at_number_followed_by_char(head: str, i: int, char: str):
         i += 1
 
     return not isblank(num) and i < len(head) and head[i] == char
+
+def at_space_padded_dash(head: str, i: int):
+    return i > 0 and i < len(head) - 1 \
+        and head[i-1:i+2] == " - "
 
 def parse_match_time(timeline: str):
     return time.strptime(timeline, "%H.%M")

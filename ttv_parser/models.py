@@ -87,8 +87,9 @@ class Report:
     body: List[Match]
 
     def __str__(self) -> str:
-        ret = str(self.head) + "\n"
-        ret += "----------------\n"
+        head = str(self.head)
+        ret = head + "\n"
+        ret += "-" * len(head) + "\n"
         for match in self.body:
             ret += str(match) + "\n"
 
@@ -99,3 +100,6 @@ class ReportHead:
     competition: str
     date: date
     subpages: List[int]
+
+    def __str__(self) -> str:
+        return f"{self.competition} {self.date.isoformat()} {self.subpages}"

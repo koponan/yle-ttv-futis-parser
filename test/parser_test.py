@@ -254,6 +254,23 @@ class ParserTest(unittest.TestCase):
             )
         )
 
+        self.dash_in_name = TestReport(
+            load_text("dash_in_name.txt"),
+            Report(
+                self.getReportHead("RANSKAN LIGUE VAR"),
+                [
+                    Match(
+                        "Saint-Buginne",
+                        "Noice",
+                        None,
+                        [0, 0],
+                        [0, 0],
+                        []
+                    )
+                ]
+            )
+        )
+
     def test_1_goalless_draw(self):
         res = parser.parse_report(self.goalless_draw.raw)
         self.assertReportsEqual(res, self.goalless_draw.expected)
@@ -324,6 +341,10 @@ class ParserTest(unittest.TestCase):
     def test_13_missed_penalty(self):
         res = parser.parse_report(self.missed_penalty.raw)
         self.assertReportsEqual(res, self.missed_penalty.expected)
+
+    def test_14_dash_in_name(self):
+        res = parser.parse_report(self.dash_in_name.raw)
+        self.assertReportsEqual(res, self.dash_in_name.expected)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

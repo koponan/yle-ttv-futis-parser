@@ -234,9 +234,3 @@ def parse_score(scoreline: str):
 
 def list_to_str(list: list):
     return "".join(list)
-
-def get_subpage_count(page: str) -> int:
-    head, _ = page.split("\n", maxsplit=1)
-    head = head.strip()
-    _, count = head.rsplit("/", maxsplit=1)
-    return int(count)

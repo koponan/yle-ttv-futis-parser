@@ -29,3 +29,6 @@ jobs:
     - name: Test
       run: |
         coverage run -m test.parser_test
+    - name: Coverage
+      run: |
+        coverage report -m

@@ -24,8 +24,11 @@ jobs:
         python-version: "3.9"
     - name: Deps
       run: |
-        python -m pip install coverage==7.6.10
+        python -m pip install coverage==7.6.10 pylint==3.3.3
         coverage --version
+    - name: Lint
+      run: |
+        pylint ttv_parser
     - name: Test
       run: |
         coverage run -m test.parser_test

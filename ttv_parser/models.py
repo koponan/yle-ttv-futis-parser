@@ -1,12 +1,43 @@
 from __future__ import annotations
+from abc import ABC
 from dataclasses import dataclass
 from datetime import date
 from functools import total_ordering
 import time
 from typing import List, Optional
 
+def to_json_value(o: object):
+    if isinstance(o, date):
+        return o.isoformat()
+    if isinstance(o, time.struct_time):
+        return time.strftime("%H.%M", o)
+    if isinstance(o, dict):
+        ret = {}
+        for key, value in o.items():
+            ret[key] = to_json_value(value)
+            return ret
+    if isinstance(o, list):
+        ret = []
+        for item in o:
+            ret.append(to_json_value(item))
+        return ret
+    if isinstance(o, (int, float, str, bool, type(None))):
+        return o
+    if isinstance(o, ModelBase):
+        d = o.__dict__
+        ret = {}
+        for k, v in d.items():
+            ret[k] = to_json_value(v)
+        return ret
+
+    raise NotImplementedError(f"'{type(o)}' is not supported")
+
+class ModelBase(ABC):
+    def json_value(self):
+        return to_json_value(self)
+
 @dataclass
-class Event:
+class Event(ModelBase):
     time: EventTime
     player: str
     team: str
@@ -18,7 +49,7 @@ class Event:
 
 @total_ordering
 @dataclass
-class EventTime:
+class EventTime(ModelBase):
     regular: int
     added: int | None
 
@@ -60,7 +91,7 @@ class MissedPenalty(Event):
         super().__init__(time, player, team)
 
 @dataclass
-class Match:
+class Match(ModelBase):
     host: str
     visitor: str
     kickoff: time.struct_time
@@ -82,7 +113,7 @@ class Match:
         return '-'.join(map(lambda n: str(n), score))
 
 @dataclass
-class Report:
+class Report(ModelBase):
     head: ReportHead
     body: List[Match]
 
@@ -96,7 +127,7 @@ class Report:
         return ret.rstrip("\n")
 
 @dataclass
-class ReportHead:
+class ReportHead(ModelBase):
     competition: str
     date: date
     subpages: List[int]

@@ -1,4 +1,5 @@
 import unittest
+import copy
 
 from datetime import date
 from dataclasses import dataclass
@@ -345,6 +346,63 @@ class ParserTest(unittest.TestCase):
     def test_14_dash_in_name(self):
         res = parser.parse_report(self.dash_in_name.raw)
         self.assertReportsEqual(res, self.dash_in_name.expected)
+
+    def test_15_json(self):
+        rep = self.goals_to_goals.expected
+        # Copy to ensure rep is not modified
+        rep_cpy = copy.deepcopy(rep)
+        rep_json = rep.json_value()
+
+        expected_json = {
+            "head": {
+                "competition": "ENGLANNIN VAR-LIIGA",
+                "date": f"{date.today().year}-01-22",
+                "subpages": [1, 1]
+            },
+            "body": [
+                {
+                    "host": "Null City",
+                    "visitor": "Foo Utd",
+                    "kickoff": None,
+                    "ht_score": [0, 2],
+                    "ft_score": [1, 2],
+                    "events": [
+                        {
+                            "time": {
+                                "regular": 30,
+                                "added": None
+                            },
+                            "player": "Barnacho",
+                            "team": "Visitor",
+                            "type": "m"
+
+                        },
+                        {
+                            "time": {
+                                "regular": 39,
+                                "added": None
+                            },
+                            "player": "Mainoom",
+                            "team": "Visitor",
+                            "type": "m"
+
+                        },
+                        {
+                            "time": {
+                                "regular": 87,
+                                "added": None
+                            },
+                            "player": "Doc",
+                            "team": "Host",
+                            "type": "m"
+                        }
+                    ]
+                }
+            ]
+        }
+        self.assertDictEqual(rep_json, expected_json)
+        # Assert that no modifications were made
+        self.assertReportsEqual(rep, rep_cpy)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

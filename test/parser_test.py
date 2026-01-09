@@ -368,6 +368,7 @@ class ParserTest(unittest.TestCase):
                     "ft_score": [1, 2],
                     "events": [
                         {
+                            "event_type": "GOAL",
                             "time": {
                                 "regular": 30,
                                 "added": None
@@ -378,6 +379,7 @@ class ParserTest(unittest.TestCase):
 
                         },
                         {
+                            "event_type": "GOAL",
                             "time": {
                                 "regular": 39,
                                 "added": None
@@ -388,6 +390,7 @@ class ParserTest(unittest.TestCase):
 
                         },
                         {
+                            "event_type": "GOAL",
                             "time": {
                                 "regular": 87,
                                 "added": None

@@ -5,6 +5,7 @@ from datetime import date
 from functools import total_ordering
 import time
 from typing import List, Optional
+from enum import Enum
 
 def to_json_value(o: object):
     if isinstance(o, date):
@@ -26,11 +27,37 @@ def to_json_value(o: object):
     if isinstance(o, ModelBase):
         d = o.__dict__
         ret = {}
+        if isinstance(o, Event):
+            event_type = resolve_event_type(o)
+            ret["event_type"] = event_type.value
+
         for k, v in d.items():
             ret[k] = to_json_value(v)
         return ret
 
     raise NotImplementedError(f"'{type(o)}' is not supported")
+
+def resolve_event_type(event: Event):
+    if isinstance(event, Goal):
+        if event.type == "m":
+            return EventType.GOAL
+        if event.type == "om":
+            return EventType.OWN_GOAL
+        if event.type == "rp":
+            return EventType.PENALTY
+    if isinstance(event, MissedPenalty):
+        return EventType.MISSED_PENALTY
+    if isinstance(event, RedCard):
+        return EventType.RED_CARD
+
+    raise TypeError(f"Unsupported event (type={type(event)})")
+
+class EventType(Enum):
+    GOAL = "GOAL"
+    OWN_GOAL = "OWN_GOAL"
+    PENALTY = "PENALTY"
+    MISSED_PENALTY = "MISSED_PENALTY"
+    RED_CARD = "RED_CARD"
 
 class ModelBase(ABC):
     def json_value(self):

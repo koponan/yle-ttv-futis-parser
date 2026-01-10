@@ -61,7 +61,7 @@ class ParserTest(unittest.TestCase):
                     [0, 0],
                     [0, 1],
                     [
-                        Goal(89, "McDominate", "Visitor", "m"),
+                        Goal(89, "McDominate", "Foo Utd", "m"),
                     ]
                 )
             ]
@@ -79,9 +79,9 @@ class ParserTest(unittest.TestCase):
                     [0, 2],
                     [1, 2],
                     [
-                        Goal(30, "Barnacho", "Visitor", "m"),
-                        Goal(39, "Mainoom", "Visitor", "m"),
-                        Goal(87, "Doc", "Host", "m")
+                        Goal(30, "Barnacho", "Foo Utd", "m"),
+                        Goal(39, "Mainoom", "Foo Utd", "m"),
+                        Goal(87, "Doc", "Null City", "m")
                     ]
                 )
             ]
@@ -99,7 +99,7 @@ class ParserTest(unittest.TestCase):
                     [0, 0],
                     [0, 1],
                     [
-                        Goal(89, "McDominate", "Visitor", "m")
+                        Goal(89, "McDominate", "Foo Utd", "m")
                     ]
                 ),
                 Match(
@@ -109,8 +109,8 @@ class ParserTest(unittest.TestCase):
                     [0, 1],
                     [1, 1],
                     [
-                        Goal(23, "Halland", "Visitor", "m"),
-                        Goal(50, "Nanez", "Host", "m")
+                        Goal(23, "Halland", "Null City", "m"),
+                        Goal(50, "Nanez", "Bazpool", "m")
                     ]
                 )
             ]
@@ -128,11 +128,11 @@ class ParserTest(unittest.TestCase):
                     [1, 1],
                     [3, 2],
                     [
-                        Goal(10, "Pom", "Visitor", "m"),
-                        Goal(45, "Ramero", "Host", "om"),
-                        Goal(48, "Pom", "Visitor", "m"),
-                        Goal(78, "McDominate", "Host", "m"),
-                        Goal(90, "Mainoom", "Host", "m")
+                        Goal(10, "Pom", "Barham", "m"),
+                        Goal(45, "Ramero", "Foo Utd", "om"),
+                        Goal(48, "Pom", "Barham", "m"),
+                        Goal(78, "McDominate", "Foo Utd", "m"),
+                        Goal(90, "Mainoom", "Foo Utd", "m")
                     ]
                 )
             ]
@@ -150,9 +150,9 @@ class ParserTest(unittest.TestCase):
                     [1, 0],
                     [2, 1],
                     [
-                        Goal(10, "Barnacho", "Host", "m"),
-                        Goal(50, "Mac Tester", "Visitor", "rp"),
-                        Goal(90, "McDominate", "Host", "m")
+                        Goal(10, "Barnacho", "Foo Utd", "m"),
+                        Goal(50, "Mac Tester", "Bazpool", "rp"),
+                        Goal(90, "McDominate", "Foo Utd", "m")
                     ]
                 )
             ]
@@ -170,9 +170,9 @@ class ParserTest(unittest.TestCase):
                     [1, 0],
                     [1, 1],
                     [
-                        Goal(30, "Nanez", "Host", "m"),
-                        Goal(75, "McDominate", "Visitor", "m"),
-                        RedCard(80, "Nanez", "Host")
+                        Goal(30, "Nanez", "Bazpool", "m"),
+                        Goal(75, "McDominate", "Foo Utd", "m"),
+                        RedCard(80, "Nanez", "Bazpool")
                     ]
                 )
             ]
@@ -206,7 +206,7 @@ class ParserTest(unittest.TestCase):
                     [1, 0],
                     None,
                     [
-                        Goal(30, "Nanez", "Host", "m")
+                        Goal(30, "Nanez", "Bazpool", "m")
                     ]
                 )
             ]
@@ -227,8 +227,8 @@ class ParserTest(unittest.TestCase):
                         [1, 0],
                         [2, 0],
                         [
-                            Goal(40, "Nanez", "Host", "m"),
-                            Goal(EventTime(90, 2), "Mac Tester", "Host", "m")
+                            Goal(40, "Nanez", "Bazpool", "m"),
+                            Goal(EventTime(90, 2), "Mac Tester", "Bazpool", "m")
                         ]
                     )
                 ]
@@ -247,8 +247,8 @@ class ParserTest(unittest.TestCase):
                         [0, 0],
                         [0, 1],
                         [
-                            MissedPenalty(40, "Halland", "Visitor"),
-                            Goal(80, "Halland", "Visitor", "m")
+                            MissedPenalty(40, "Halland", "Null City"),
+                            Goal(80, "Halland", "Null City", "m")
                         ]
                     )
                 ]
@@ -374,7 +374,7 @@ class ParserTest(unittest.TestCase):
                                 "added": None
                             },
                             "player": "Barnacho",
-                            "team": "Visitor",
+                            "team": "Foo Utd",
                             "type": "m"
 
                         },
@@ -385,7 +385,7 @@ class ParserTest(unittest.TestCase):
                                 "added": None
                             },
                             "player": "Mainoom",
-                            "team": "Visitor",
+                            "team": "Foo Utd",
                             "type": "m"
 
                         },
@@ -396,7 +396,7 @@ class ParserTest(unittest.TestCase):
                                 "added": None
                             },
                             "player": "Doc",
-                            "team": "Host",
+                            "team": "Null City",
                             "type": "m"
                         }
                     ]

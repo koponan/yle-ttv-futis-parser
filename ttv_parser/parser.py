@@ -62,7 +62,7 @@ def parse_body(body: str):
             curr_match = parse_match_head(row.strip())
         else:
             # parse event rows in reverse to reduce ambiguity in row structure
-            curr_match.events += parse_match_event_row_reverse(row)
+            curr_match.events += parse_match_event_row_reverse(row, curr_match)
 
     return matches
 
@@ -116,13 +116,13 @@ def parse_match_head(head: str):
         []
     )
 
-def parse_match_event_row_reverse(row: str):
+def parse_match_event_row_reverse(row: str, match: Match):
     events: List[Event] = []
     event = None
     player = ""
     time = ""
-    first_team = "Visitor"
-    last_team = "Host"
+    first_team = match.visitor
+    last_team = match.host
     building_player = False
     building_time = False
     building_time_prefix = False
@@ -176,7 +176,7 @@ def parse_match_event_row_reverse(row: str):
             else:
                 # multiple spaces, assume trailing spaces
                 # after visitor with no host following
-                last_team = "Visitor"
+                last_team = match.visitor
 
     if building_player:
         event.player = player

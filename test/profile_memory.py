@@ -20,8 +20,8 @@ def main(args: argparse.Namespace):
     parsed = parser.parse_report(rep_text)
     snapshot = tracemalloc.take_snapshot()
 
-    if args.o is not None:
-        snapshot.dump(args.o)
+    if args.output is not None:
+        snapshot.dump(args.output)
         return
 
     if args.compare is not None:
